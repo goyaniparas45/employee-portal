@@ -71,6 +71,10 @@ const addEmployee = async (req, res) => {
   try {
     const request = new UserModel(req.body);
     const password = req.body.password;
+
+    const logged_in_user = res.locals.user;
+    request.created_by = logged_in_user.user_id;
+
     request.password = await hashPassword(password);
 
     const employee = await request.save();

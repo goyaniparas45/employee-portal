@@ -7,6 +7,7 @@ import { getUserData } from "../services/authService";
 
 const Sidebar = () => {
   const data = getUserData();
+
   const navigate = useNavigate();
   const { logout } = useAuth();
   const handleLogout = () => {
@@ -24,36 +25,34 @@ const Sidebar = () => {
           <h3 className="mb-4 ml-4 text-sm font-semibold text-gray-400">
             MENU
           </h3>
-          {data.role === "hr" ||
-            (data.role === "admin" && (
-              <>
-                <li>
-                  <NavLink
-                    to="/admin/employees"
-                    className={({ isActive }) =>
-                      `flex items-center justify-start h-12 px-4 rounded hover:bg-gray-700 transition ${
-                        isActive ? "bg-gray-600 text-yellow-300" : "text-white"
-                      }`
-                    }>
-                    <HiOutlineUsers className="mr-2" />
-                    Employees
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/admin/tasks"
-                    className={({ isActive }) =>
-                      `flex items-center justify-start h-12 px-4 rounded hover:bg-gray-700 transition ${
-                        isActive ? "bg-gray-600 text-yellow-300" : "text-white"
-                      }`
-                    }>
-                    <HiOutlineClipboardList className="mr-2" />
-                    Tasks
-                  </NavLink>
-                </li>
-              </>
-            ))}
-          {data.role === "employee" && (
+          {data.role === "hr" || data.role === "admin" ? (
+            <>
+              <li>
+                <NavLink
+                  to="/admin/employees"
+                  className={({ isActive }) =>
+                    `flex items-center justify-start h-12 px-4 rounded hover:bg-gray-700 transition ${
+                      isActive ? "bg-gray-600 text-yellow-300" : "text-white"
+                    }`
+                  }>
+                  <HiOutlineUsers className="mr-2" />
+                  Employees
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/admin/tasks"
+                  className={({ isActive }) =>
+                    `flex items-center justify-start h-12 px-4 rounded hover:bg-gray-700 transition ${
+                      isActive ? "bg-gray-600 text-yellow-300" : "text-white"
+                    }`
+                  }>
+                  <HiOutlineClipboardList className="mr-2" />
+                  Tasks
+                </NavLink>
+              </li>
+            </>
+          ) : (
             <li>
               <NavLink
                 to="/admin/dashboard"

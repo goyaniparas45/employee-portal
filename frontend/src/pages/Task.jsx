@@ -21,49 +21,77 @@ const Task = () => {
 
   const status = ["completed", "pending"];
   const [assignee, setAssignee] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [taskId, setTaskId] = useState("");
+  const [touched, setTouched] = useState({});
+
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [Tasks, setTasks] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    status: "",
+    status: "pending",
     assignee: "",
+    documents: [],
     created_by: user.user_id,
   });
 
   useEffect(() => {
-    fetchAllTasks();
+    fetchTasksData();
   }, []);
 
-  const fetchAllTasks = async () => {
+  useEffect(() => {
+    fetchEmployeesData();
+  }, []);
+
+  const fetchEmployeesData = async () => {
     try {
-      const assigneeData = await fetchEmployees();
-      const data = await fetchTasks();
-      setTasks(data);
-      setAssignee(assigneeData);
+      const response = await fetchEmployees();
+      setAssignee(response.data);
     } catch (error) {
       showErrorToast(error.message);
     }
   };
 
+  // const handleDocumentChange = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   setDocuments((prevDocuments) => [...prevDocuments, ...files]);
+  // };
+  const fetchTasksData = async () => {
+    try {
+      const data = await fetchTasks();
+      setTasks(data);
+    } catch (error) {
+      showErrorToast(error.message);
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const newErrors = validateForm(formData);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     setLoading(true);
     try {
       if (taskId) {
+        // updateTask(taskId, { ...formData, documents });
         updateTask(taskId, formData);
       } else {
-        await addTasks(formData);
-        showSuccessToast("Task added successfully!");
+        const response = await addTasks(formData, documents);
+        // { ...formData, documents }
+        showSuccessToast(response.message);
       }
-      fetchAllTasks();
+      fetchTasksData();
       resetForm();
     } catch (error) {
       showErrorToast(error.message);
@@ -72,29 +100,74 @@ const Task = () => {
     }
   };
 
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched({ ...touched, [name]: true });
+    const fieldError = validateField(name, formData[name]);
+    setErrors({ ...errors, [name]: fieldError });
+  };
+
+  const validateField = (fieldName, value) => {
+    switch (fieldName) {
+      case "name":
+        if (!value) {
+          return "Name is required.";
+        } else if (value.length < 4) {
+          return "Name should be at least 4 characters.";
+        }
+        break;
+      case "description":
+        if (!value) {
+          return "Description is required.";
+        }
+        break;
+
+      case "assignee":
+        if (!value) {
+          return "Assignee is required.";
+        }
+        break;
+      default:
+        break;
+    }
+    return "";
+  };
+
+  const validateForm = (data) => {
+    const newErrors = {};
+
+    Object.keys(data).forEach((key) => {
+      const error = validateField(key, data[key]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
+
+    return newErrors;
+  };
+
   const updateTask = async (id, data) => {
     try {
-      await updateTasks(id, data);
+      const response = await updateTasks(id, {
+        ...data,
+        assignee: data.assignee._id ? data.assignee._id : data.assignee,
+      });
       setTaskId(null);
-      showSuccessToast("Task updated successfully!");
+      showSuccessToast(response.message);
     } catch (error) {
       showErrorToast(error.message);
     }
   };
 
   const handleEdit = (task) => {
-    setFormData(task);
+    setFormData({
+      name: task.name,
+      description: task.description,
+      status: task.status,
+      assignee: task.assignee,
+      documents: [],
+    });
     setTaskId(task._id);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await deleteTasks(id);
-      fetchAllTasks();
-      showWarningToast("Task deleted successfully!");
-    } catch (error) {
-      showErrorToast(error.message);
-    }
   };
 
   const resetForm = () => {
@@ -105,18 +178,38 @@ const Task = () => {
       status: "",
     });
     setTaskId(null);
+    setErrors({});
+    setDocuments([]);
   };
 
   const handleAssigneeChange = async (taskId, assignee, task) => {
     await updateTask(taskId, { ...task, assignee });
-    await fetchAllTasks();
+    await fetchTasksData();
     resetForm();
   };
 
   const updateStatusChange = async (taskId, status, task) => {
     await updateTask(taskId, { ...task, status });
-    await fetchAllTasks();
+    await fetchTasksData();
     resetForm();
+  };
+
+  const handleDelete = async (id) => {
+    confirm({
+      title: "Confirm Deletion",
+      message: "Are you sure you want to delete this task?",
+      onConfirm: async () => {
+        try {
+          const response = await deleteTasks(id);
+          await fetchTasksData();
+          showWarningToast(response.message);
+        } catch (error) {
+          console.log(error);
+          showErrorToast(error.message);
+        }
+      },
+      onCancel: {},
+    });
   };
 
   return (
@@ -134,6 +227,7 @@ const Task = () => {
               </label>
               <input
                 type="text"
+                onBlur={handleBlur}
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -141,6 +235,11 @@ const Task = () => {
                 required
                 className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
               />
+              {errors.name && touched.name && (
+                <p className="text-red-500 text-sm mt-0.5 ml-2">
+                  {errors.name}
+                </p>
+              )}
             </div>
             <div className="w-full">
               <label
@@ -150,6 +249,7 @@ const Task = () => {
               </label>
               <select
                 name="assignee"
+                onBlur={handleBlur}
                 value={formData.assignee}
                 onChange={handleChange}
                 required
@@ -158,11 +258,16 @@ const Task = () => {
                   Select Assignee
                 </option>
                 {assignee.map((user) => (
-                  <option key={user.name} value={user._id}>
+                  <option key={user._id} value={user._id}>
                     {user.name}
                   </option>
                 ))}
               </select>
+              {errors.assignee && touched.assignee && (
+                <p className="text-red-500 text-sm mt-0.5 ml-2">
+                  {errors.assignee}
+                </p>
+              )}
             </div>
           </div>
           <div className="w-full">
@@ -175,36 +280,71 @@ const Task = () => {
               type="text"
               name="description"
               rows={6}
+              onBlur={handleBlur}
               value={formData.description}
               onChange={handleChange}
               placeholder="Description"
               required
               className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
             />
+            {errors.description && touched.assignee && (
+              <p className="text-red-500 text-sm mt-0.5 ml-2">
+                {errors.description}
+              </p>
+            )}
           </div>
-          <div className="w-full mt-2">
-            <label
-              htmlFor="assignee"
-              className="block text-gray-700 font-semibold mb-2">
-              Status
-            </label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
-              className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 capitalize w-full max-w-[335px]">
-              <option value="" disabled>
+          {taskId && (
+            <div className="w-full mt-2">
+              <label
+                htmlFor="assignee"
+                className="block text-gray-700 font-semibold mb-2">
                 Status
-              </option>
-              {status.map((status, index) => (
-                <option key={index} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex justify-end">
+              </label>
+              <select
+                name="status"
+                onBlur={handleBlur}
+                value={formData.status}
+                onChange={handleChange}
+                required
+                className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 capitalize w-full max-w-[335px]">
+                {status.map((status, index) => (
+                  <option key={index} value={status} selected>
+                    {status}
+                  </option>
+                ))}
+              </select>
+              {errors.status && touched.status && (
+                <p className="text-red-500 text-sm mt-0.5 ml-2">
+                  {errors.status}
+                </p>
+              )}
+            </div>
+          )}
+          {/* <div className="w-full">
+            <label
+              htmlFor="documents"
+              className="block text-gray-700 font-semibold mb-2">
+              Upload Document
+            </label>
+            <input
+              type="file"
+              name="documents"
+              onChange={handleDocumentChange}
+              className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
+            />
+
+            {documents.length > 0 && (
+              <div>
+                <h4>Uploaded Documents:</h4>
+                <ul>
+                  {documents.map((doc, index) => (
+                    <li key={index}>{doc.name}</li> // Display the file name
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div> */}
+          <div className="flex justify-end mt-4">
             <button
               onClick={resetForm}
               type="button"

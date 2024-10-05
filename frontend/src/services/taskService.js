@@ -10,16 +10,17 @@ export const fetchTasks = async () => {
 // Add a new task
 export const addTasks = async (task) => {
   const response = await authClient.post(`${API_URL}/task`, task);
-  return response.data;
+  return response;
 };
 
 // Update an existing task
 export const updateTasks = async (id, task) => {
   const response = await authClient.put(`${API_URL}/task/${id}`, task);
-  return response.data;
+  return response;
 };
 
 // Delete a task by ID
 export const deleteTasks = async (id) => {
-  await authClient.delete(`${API_URL}/task/${id}`);
+  const response = await authClient.delete(`${API_URL}/task/${id}`);
+  return response;
 };

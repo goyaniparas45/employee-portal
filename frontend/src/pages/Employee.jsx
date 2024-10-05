@@ -15,13 +15,16 @@ import {
   deleteEmployee,
   fetchRoles,
 } from "../services/employeeService";
+import { useConfirmAlert } from "react-use-confirm-alert";
 
 const Employee = () => {
+  const confirm = useConfirmAlert();
   const initialEmployees = [];
   const [loading, setLoading] = useState(false);
   const departmentOptions = ["IT", "Marketing", "Dispatch"];
   const onboardingStatusOptions = ["Completed", "Pending"];
-
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [employees, setEmployees] = useState(initialEmployees);
   const [formData, setFormData] = useState({
     name: "",
@@ -67,6 +70,12 @@ const Employee = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const newErrors = validateForm(formData);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     const generatedPassword = generatePassword(formData.name, formData.email);
     const employeeData = {
       ...formData,
@@ -90,6 +99,67 @@ const Employee = () => {
     }
   };
 
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched({ ...touched, [name]: true });
+    const fieldError = validateField(name, formData[name]);
+    setErrors({ ...errors, [name]: fieldError });
+  };
+  const validateField = (fieldName, value) => {
+    switch (fieldName) {
+      case "name":
+        if (!value) {
+          return "Name is required.";
+        } else if (value.length < 4) {
+          return "Name should be at least 4 characters.";
+        }
+        break;
+
+      case "email":
+        if (!value) {
+          return "Email is required.";
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          return "Email is invalid.";
+        }
+        break;
+
+      case "role":
+        if (!value) {
+          return "Role is required.";
+        }
+        break;
+
+      case "department":
+        if (!value) {
+          return "Department is required.";
+        }
+        break;
+
+      case "onboardingStatus":
+        if (!value) {
+          return "Onboarding status is required.";
+        }
+        break;
+
+      default:
+        break;
+    }
+    return "";
+  };
+
+  const validateForm = (data) => {
+    const newErrors = {};
+
+    Object.keys(data).forEach((key) => {
+      const error = validateField(key, data[key]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
+
+    return newErrors;
+  };
+
   const updateEmployeeData = async (id, data) => {
     try {
       const response = await updateEmployee(id, data);
@@ -103,16 +173,6 @@ const Employee = () => {
   const handleEdit = (employee) => {
     setFormData(employee);
     setEmpId(employee._id);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      const response = await deleteEmployee(id);
-      getEmployees();
-      showWarningToast(response.message);
-    } catch (error) {
-      showErrorToast(error.message);
-    }
   };
 
   const resetForm = () => {
@@ -133,6 +193,23 @@ const Employee = () => {
     getEmployees();
     resetForm();
   };
+
+  const handleDelete = async (id) => {
+    confirm({
+      title: "Confirm Deletion",
+      message: "Are you sure you want to delete employee?",
+      onConfirm: async () => {
+        try {
+          const response = await deleteEmployee(id);
+          getEmployees();
+          showWarningToast(response.message);
+        } catch (error) {
+          showErrorToast(error.message);
+        }
+      },
+      onCancel: {},
+    });
+  };
   return (
     <div className="p-6">
       <ToastContainer />
@@ -141,45 +218,54 @@ const Employee = () => {
         <form onSubmit={handleSubmit}>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label
-                htmlFor="name"
-                className="block text-gray-700 font-semibold mb-2">
+              <label className="block text-gray-700 font-semibold mb-2">
                 Name
               </label>
               <input
                 type="text"
                 name="name"
+                onBlur={handleBlur}
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Name"
                 required
                 className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
               />
+              {touched.name && errors.name && (
+                <p className="text-red-500 text-sm mt-0.5 ml-2">
+                  {errors.name}
+                </p>
+              )}
             </div>
             <div>
-              <label
-                htmlFor="name"
-                className="block text-gray-700 font-semibold mb-2">
+              <label className="block text-gray-700 font-semibold mb-2">
                 Email
               </label>
               <input
                 type="email"
+                onBlur={handleBlur}
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email"
                 required
-                className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 lowercase w-full"
+                className={`border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500  w-full ${
+                  formData.email ? "lowercase" : ""
+                }`}
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-0.5 ml-2">
+                  {errors.email}
+                </p>
+              )}
             </div>
             <div>
-              <label
-                htmlFor="role"
-                className="block text-gray-700 font-semibold mb-2">
+              <label className="block text-gray-700 font-semibold mb-2">
                 Role
               </label>
               <select
                 name="role"
+                onBlur={handleBlur}
                 value={formData.role}
                 onChange={handleChange}
                 required
@@ -193,15 +279,19 @@ const Employee = () => {
                   </option>
                 ))}
               </select>
+              {errors.role && (
+                <p className="text-red-500 text-sm mt-0.5 ml-2">
+                  {errors.role}
+                </p>
+              )}
             </div>
             <div>
-              <label
-                htmlFor="role"
-                className="block text-gray-700 font-semibold mb-2">
+              <label className="block text-gray-700 font-semibold mb-2">
                 Department
               </label>
               <select
                 name="department"
+                onBlur={handleBlur}
                 value={formData.department}
                 onChange={handleChange}
                 required
@@ -215,29 +305,40 @@ const Employee = () => {
                   </option>
                 ))}
               </select>
+              {errors.department && (
+                <p className="text-red-500 text-sm mt-0.5 ml-2">
+                  {errors.department}
+                </p>
+              )}
             </div>
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-gray-700 font-semibold mb-2">
-                Status
-              </label>
-              <select
-                name="onboardingStatus"
-                value={formData.onboardingStatus}
-                onChange={handleChange}
-                required
-                className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full">
-                <option value="" disabled>
-                  Onboarding Status
-                </option>
-                {onboardingStatusOptions.map((OnboardingStatus) => (
-                  <option key={OnboardingStatus} value={OnboardingStatus}>
-                    {OnboardingStatus}
+            {empId && (
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Status
+                </label>
+                <select
+                  name="onboardingStatus"
+                  onBlur={handleBlur}
+                  value={formData.onboardingStatus}
+                  onChange={handleChange}
+                  required
+                  className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full">
+                  <option value="" disabled>
+                    Onboarding Status
                   </option>
-                ))}
-              </select>
-            </div>
+                  {onboardingStatusOptions.map((OnboardingStatus) => (
+                    <option key={OnboardingStatus} value={OnboardingStatus}>
+                      {OnboardingStatus}
+                    </option>
+                  ))}
+                </select>
+                {errors.onboardingStatus && (
+                  <p className="text-red-500 text-sm mt-0.5 ml-2">
+                    {errors.onboardingStatus}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex justify-end">
             <button

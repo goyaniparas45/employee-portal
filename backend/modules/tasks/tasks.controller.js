@@ -66,6 +66,9 @@ const addTask = async (req, res) => {
   try {
     const request = new Task(req.body);
 
+    const logged_in_user = res.locals.user;
+    request.created_by = logged_in_user.user_id;
+
     const employee = await request.save();
 
     return res.status(201).json({
