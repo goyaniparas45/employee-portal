@@ -42,7 +42,7 @@ Responsive Design
 
 # Portal Link and credentials
 
-- Please (Click here)[http://52.90.221.187:8000] and head over to the portal link.
+- Please [(Click here)\[\]](http://52.90.221.187:8000) and head over to the portal link.
 - Below are some credentials you can use to test the core functionalities, along with 2FA and email functionalities.
 
 - (Super Admin)
