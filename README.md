@@ -30,6 +30,7 @@ Hr@12345
 
 ```bash
 mozzie@yopmail.com
+```
 
 # Core Requirements (Must-Have Features):
 
