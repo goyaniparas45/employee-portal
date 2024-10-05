@@ -7,6 +7,34 @@ Project Overview:
 - New hires can view their onboarding progress, complete assigned tasks, and upload necessary documents.
 - The purpose is to enhance the user experience for HR teams and new employees by providing a structured and seamless onboarding experience.
 
+
+# Portal Link and credentials
+
+- Please [Click Here](http://52.90.221.187:8000) and head over to the portal link.
+- Below are some credentials you can use to test the core functionalities, along with 2FA and email functionalities.
+
+- (Super Admin)
+
+```bash
+ portaladmin@yopmail.com
+ Admin@1234
+```
+
+- (HR)
+
+```bash
+portalhr@yopmail.com
+Hr@12345
+```
+- (Employee)
+
+```bash
+mozzie@yopmail.com
+Mozzie@123
+```
+
+_NOTE: This emails are temporary emails so when you login to the portal plese visit [Yopmail.com](https://yopmail.com/) and type-in the email you want to see the code for_
+
 # Core Requirements (Must-Have Features):
 
 User Registration & Login:
@@ -40,27 +68,4 @@ Responsive Design
 
 - Ensure the UI is responsive and adjusts well to different screen sizes.
 
-# Portal Link and credentials
 
-- Please [Click Here](http://52.90.221.187:8000) and head over to the portal link.
-- Below are some credentials you can use to test the core functionalities, along with 2FA and email functionalities.
-
-- (Super Admin)
-
-```bash
- portaladmin@yopmail.com
- Admin@1234
-```
-
-- (HR)
-
-```bash
-portalhr@yopmail.com
-Hr@12345
-```
-- (Employee)
-
-```bash
-mozzie@yopmail.com
-Mozzie@123
-```
