@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { forgotPassword } from "../services/authService";
 import { MdLockReset } from "react-icons/md";
 import { Link } from "react-router-dom";
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 import { ToastContainer } from "react-toastify";
+import { forgotPassword } from "../services/authService";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 const ForgotPassword = () => {
   const [error, setError] = useState({});
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
   });
@@ -21,11 +22,14 @@ const ForgotPassword = () => {
     setError(newErrors);
 
     try {
+      setLoading(true);
       const resposne = await forgotPassword(formData.email);
       resetForm();
       showSuccessToast(resposne.message);
     } catch (err) {
       showErrorToast(err.message);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -80,8 +84,38 @@ const ForgotPassword = () => {
 
               <button
                 type="submit"
-                className="tracking-wide font-semibold bg-blue-900 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
-                <span className="ml-3">Send Reset Link</span>
+                disabled={loading}
+                className={`tracking-wide font-semibold bg-blue-900 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <span className="ml-3">
+                  {loading ? (
+                    <div className="flex items-center">
+                      <svg
+                        className="animate-spin h-5 w-5 mr-3 text-gray-100"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          fill="none"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12c0-1.104.896-2 2-2h12c1.104 0 2 .896 2 2s-.896 2-2 2H6c-1.104 0-2-.896-2-2z"
+                        />
+                      </svg>
+                      Sending Link...
+                    </div>
+                  ) : (
+                    <span className="ml-3">Send Reset Link</span>
+                  )}
+                </span>
               </button>
               <p className="mt-4 text-xs text-gray-600 text-center">
                 <Link to="/login">
