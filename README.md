@@ -33,6 +33,8 @@ mozzie@yopmail.com
 Mozzie@123
 ```
 
+_NOTE: This emails are temporary emails so when you login to the portal plese visit [Yopmail.com](https://yopmail.com/) and type-in the email you want to see the code for_
+
 # Core Requirements (Must-Have Features):
 
 User Registration & Login:
@@ -67,4 +69,3 @@ Responsive Design
 - Ensure the UI is responsive and adjusts well to different screen sizes.
 
 
-_NOTE: This emails are temporary emails so when you login to the portal plese visit [Yopmail.com](https://yopmail.com/) and type-in the email you want to see the code for_
