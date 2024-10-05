@@ -1,14 +1,16 @@
 const Task = require("./tasks.schema");
 const errorHandler = require("../../helpers/errorHandler");
 const UserModel = require("../../schemas/user.schema");
-
+const ROLES = require("../../constants/role.constant");
 const getAllTasks = async (req, res) => {
   try {
-     const logged_in_user = res.locals.user;
-    const tasks = await Task.find({
-      assignee: logged_in_user.user_id
-    });
-
+    const logged_in_user = res.locals.user;
+    const tasks =
+      logged_in_user.role === ROLES.HR
+        ? await Task.find()
+        : await Task.find({
+            assignee: logged_in_user.user_id,
+          });
     for (let i = 0; i < tasks.length; i++) {
       const task = tasks[i];
       const user = await UserModel.findById(task.created_by);
