@@ -24,3 +24,10 @@ export const deleteTasks = async (id) => {
   const response = await authClient.delete(`${API_URL}/task/${id}`);
   return response;
 };
+
+export const uploadDocument = async (file) => {
+  const response = await authClient.post(`${API_URL}/upload`, file, {
+    transformRequest: [(data) => data],
+  });
+  return response;
+};

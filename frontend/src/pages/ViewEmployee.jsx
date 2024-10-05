@@ -31,7 +31,14 @@ const ViewEmployee = () => {
 
   const updateStatusChange = async (taskId, status, task) => {
     try {
-      const response = await updateTasks(taskId, { ...task, status });
+      const updatedTask = {
+        name: task.name,
+        description: task.description,
+        status,
+        assignee: task.assignee,
+        documents: [],
+      };
+      const response = await updateTasks(taskId, updatedTask);
       showSuccessToast(response.message);
       init();
     } catch (error) {
@@ -53,54 +60,62 @@ const ViewEmployee = () => {
         </div>
       </div>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">Name</th>
-              <th className="border border-gray-300 px-4 py-2">Description</th>
-              <th className="border border-gray-300 px-4 py-2">Assigned by</th>
-              <th className="border border-gray-300 px-4 py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Tasks.map((task) => (
-              <tr
-                key={task._id}
-                className="hover:bg-gray-100 transition-colors duration-200 text-center"
-              >
-                <td className="border border-gray-300 px-4 py-2">
-                  {task.name ? task.name : "--"}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {task.description ? task.description : "--"}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {task.created_by?.name ? task.created_by?.name : "--"}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <select
-                    name="status"
-                    value={task.status}
-                    onChange={(e) =>
-                      updateStatusChange(task._id, e.target.value, task)
-                    }
-                    required
-                    className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 capitalize"
-                  >
-                    <option value="" disabled>
-                      Status
-                    </option>
-                    {status.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Name
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Description
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Assigned by
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Status
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {Tasks.map((task) => (
+                <tr
+                  key={task._id}
+                  className="hover:bg-gray-100 transition-colors duration-200 text-center">
+                  <td className="border border-gray-300 px-4 py-2">
+                    {task.name}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {task.description}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {task.created_by?.name}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <select
+                      name="status"
+                      value={task.status}
+                      onChange={(e) =>
+                        updateStatusChange(task._id, e.target.value, task)
+                      }
+                      required
+                      className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 capitalize">
+                      <option value="" disabled>
+                        Status
+                      </option>
+                      {status.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

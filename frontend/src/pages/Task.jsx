@@ -1,41 +1,51 @@
+import { AiOutlineClose } from "react-icons/ai";
+import { AiFillEye } from "react-icons/ai";
+import API_URL from "../config/config";
 import { useEffect, useState } from "react";
 import { BiEdit } from "react-icons/bi";
 import { MdCheck, MdDeleteOutline } from "react-icons/md";
 import { ToastContainer } from "react-toastify";
-import { getUserData } from "../services/authService";
 import { fetchEmployees } from "../services/employeeService";
 import {
   addTasks,
   deleteTasks,
   fetchTasks,
   updateTasks,
+  uploadDocument,
 } from "../services/taskService";
 import {
   showErrorToast,
   showSuccessToast,
   showWarningToast,
 } from "../utils/toastUtils";
+import { useConfirmAlert } from "react-use-confirm-alert";
+import TaskModal from "./TaskModal";
 
 const Task = () => {
-  const user = getUserData();
-
+  const confirm = useConfirmAlert();
   const status = ["completed", "pending"];
   const [assignee, setAssignee] = useState([]);
-  const [documents, setDocuments] = useState([]);
   const [taskId, setTaskId] = useState("");
   const [touched, setTouched] = useState({});
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [Tasks, setTasks] = useState([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     status: "pending",
     assignee: "",
-    documents: [],
-    created_by: user.user_id,
+    file: [],
   });
+
+  const handleRowClick = (task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     fetchTasksData();
@@ -84,11 +94,10 @@ const Task = () => {
     setLoading(true);
     try {
       if (taskId) {
-        // updateTask(taskId, { ...formData, documents });
+        // updateTask(taskId, { ...formData, file });
         updateTask(taskId, formData);
       } else {
-        const response = await addTasks(formData, documents);
-        // { ...formData, documents }
+        const response = await addTasks(formData);
         showSuccessToast(response.message);
       }
       fetchTasksData();
@@ -165,7 +174,7 @@ const Task = () => {
       description: task.description,
       status: task.status,
       assignee: task.assignee,
-      documents: [],
+      file: task.file,
     });
     setTaskId(task._id);
   };
@@ -176,21 +185,54 @@ const Task = () => {
       description: "",
       assignee: "",
       status: "",
+      file: [],
     });
     setTaskId(null);
     setErrors({});
-    setDocuments([]);
   };
 
   const handleAssigneeChange = async (taskId, assignee, task) => {
-    await updateTask(taskId, { ...task, assignee });
+    const updatedTask = {
+      name: task.name,
+      description: task.description,
+      status: task.status,
+      assignee: task.assignee,
+    };
+    await updateTask(taskId, updatedTask);
     await fetchTasksData();
     resetForm();
   };
 
+  const handleDocumentChange = async (e) => {
+    // Prepare form data to send to the API
+    const newData = new FormData();
+    if (e.target.files.length > 0) {
+      setLoading(true);
+      newData.append("file", e.target.files[0]);
+
+      try {
+        const response = await uploadDocument(newData);
+        formData.file = [...formData.file, response.data];
+        console.log(formData);
+      } catch (error) {
+        showErrorToast(error.message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      showErrorToast("No file selected.");
+    }
+  };
   const updateStatusChange = async (taskId, status, task) => {
-    await updateTask(taskId, { ...task, status });
+    const updatedTask = {
+      name: task.name,
+      description: task.description,
+      status: task.status,
+      assignee: task.assignee,
+    };
+    await updateTask(taskId, updatedTask);
     await fetchTasksData();
+    console.log(updatedTask);
     resetForm();
   };
 
@@ -210,6 +252,12 @@ const Task = () => {
       },
       onCancel: {},
     });
+  };
+
+  const removeFiles = (index) => {
+    if (!formData.file.length) return;
+    const updatedFiles = formData.file.filter((_, i) => i !== index);
+    setFormData({ ...formData, file: updatedFiles });
   };
 
   return (
@@ -320,30 +368,45 @@ const Task = () => {
               )}
             </div>
           )}
-          {/* <div className="w-full">
+          <div className="w-full">
             <label
-              htmlFor="documents"
+              htmlFor="file"
               className="block text-gray-700 font-semibold mb-2">
               Upload Document
             </label>
             <input
               type="file"
-              name="documents"
+              name="file"
               onChange={handleDocumentChange}
               className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
             />
 
-            {documents.length > 0 && (
-              <div>
+            {formData.file.length > 0 && (
+              <div className="mt-5">
                 <h4>Uploaded Documents:</h4>
-                <ul>
-                  {documents.map((doc, index) => (
-                    <li key={index}>{doc.name}</li> // Display the file name
+                <ul className="max-w-[335px] flex flex-col gap-2 mt-2">
+                  {formData.file.map((doc, index) => (
+                    <li
+                      key={index}
+                      className="p-3 border rounded-lg flex items-center gap-3 justify-between">
+                      <a
+                        className="text-blue-600 underline line-clamp-1"
+                        href={`${API_URL}/${doc.path}`}
+                        target="_blank"
+                        download>
+                        {doc.filename}
+                      </a>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => removeFiles(index)}>
+                        <AiOutlineClose />
+                      </div>
+                    </li> // Display the file name
                   ))}
                 </ul>
               </div>
             )}
-          </div> */}
+          </div>
           <div className="flex justify-end mt-4">
             <button
               onClick={resetForm}
@@ -393,81 +456,100 @@ const Task = () => {
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">Name</th>
-              <th className="border border-gray-300 px-4 py-2">Description</th>
-              <th className="border border-gray-300 px-4 py-2">Assignee</th>
-              <th className="border border-gray-300 px-4 py-2">Status</th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Tasks.map((task) => (
-              <tr
-                key={task._id}
-                className="hover:bg-gray-100 transition-colors duration-200 text-center">
-                <td className="border border-gray-300 px-4 py-2">
-                  {task.name}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {task.description}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <select
-                    name="assignee"
-                    value={task.assignee}
-                    onChange={(e) =>
-                      handleAssigneeChange(task._id, e.target.value, task)
-                    }
-                    className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500">
-                    <option value="" disabled>
-                      Select Assignee
-                    </option>
-                    {assignee.map((user) => (
-                      <option key={user.name} value={user._id}>
-                        {user.name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <select
-                    name="status"
-                    value={task.status}
-                    onChange={(e) =>
-                      updateStatusChange(task._id, e.target.value, task)
-                    }
-                    required
-                    className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 capitalize">
-                    <option value="" disabled>
-                      Status
-                    </option>
-                    {status.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-center">
-                  <button
-                    onClick={() => handleEdit(task)}
-                    className="bg-yellow-500 text-white text-xl rounded-full px-2 py-2 mr-2 transition-colors duration-300 hover:bg-yellow-600">
-                    <BiEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(task._id)}
-                    className="bg-red-500 text-white text-xl rounded-full px-2 py-2 transition-colors duration-300 hover:bg-red-600">
-                    <MdDeleteOutline />
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-2">Name</th>
+                <th className="border border-gray-300 px-4 py-2">
+                  Description
+                </th>
+                <th className="border border-gray-300 px-4 py-2">Assignee</th>
+                <th className="border border-gray-300 px-4 py-2">Status</th>
+                <th className="border border-gray-300 px-4 py-2">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {Tasks.map((task) => (
+                <tr
+                  key={task._id}
+                  className="hover:bg-gray-100 transition-colors duration-200 text-center">
+                  <td className="border border-gray-300 px-4 py-2 text-nowrap">
+                    {task.name}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-nowrap">
+                    {task.description}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <select
+                      name="assignee"
+                      value={task.assignee}
+                      onChange={(e) =>
+                        handleAssigneeChange(task._id, e.target.value, task)
+                      }
+                      className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500">
+                      <option value="" disabled>
+                        Select Assignee
+                      </option>
+                      {assignee.map((user) => (
+                        <option key={user.name} value={user._id}>
+                          {user.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <select
+                      name="status"
+                      value={task.status}
+                      onChange={(e) =>
+                        updateStatusChange(task._id, e.target.value, task)
+                      }
+                      required
+                      className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 capitalize">
+                      <option value="" disabled>
+                        Status
+                      </option>
+                      {status.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="border border-gray-200 px-4 py-3 flex justify-center">
+                    <button
+                      onClick={() => handleRowClick(task)}
+                      className="bg-blue-500 text-white text-xl rounded-full px-2 py-2 mr-2 transition-colors duration-300 hover:bg-yellow-600">
+                      <AiFillEye />
+                    </button>
+
+                    <button
+                      onClick={() => handleEdit(task)}
+                      className="bg-yellow-500 text-white text-xl rounded-full px-2 py-2 mr-2 transition-colors duration-300 hover:bg-yellow-600">
+                      <BiEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(task._id)}
+                      className="bg-red-500 text-white text-xl rounded-full px-2 py-2 transition-colors duration-300 hover:bg-red-600">
+                      <MdDeleteOutline />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
+      {selectedTask ? (
+        <TaskModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          task={selectedTask}
+        />
+      ) : (
+        ""
+      )}
     </div>
   );
 };

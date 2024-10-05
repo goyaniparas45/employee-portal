@@ -26,6 +26,7 @@ const Employee = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [employees, setEmployees] = useState(initialEmployees);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -389,71 +390,77 @@ const Employee = () => {
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">Name</th>
-              <th className="border border-gray-300 px-4 py-2">Email</th>
-              <th className="border border-gray-300 px-4 py-2">Role</th>
-              <th className="border border-gray-300 px-4 py-2">Department</th>
-              <th className="border border-gray-300 px-4 py-2">
-                Onboarding Status
-              </th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((employee) => (
-              <tr
-                key={employee._id}
-                className="hover:bg-gray-100 transition-colors duration-200 text-center">
-                <td className="border border-gray-300 px-4 py-2">
-                  {employee.name}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {employee.email}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 capitalize">
-                  {employee.role}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {employee.department}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <select
-                    name="status"
-                    value={employee.status}
-                    onChange={(e) =>
-                      updateStatusChange(employee._id, e.target.value, employee)
-                    }
-                    required
-                    className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 capitalize">
-                    <option value="" disabled>
-                      Status
-                    </option>
-                    {onboardingStatusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-center">
-                  <button
-                    onClick={() => handleEdit(employee)}
-                    className="bg-yellow-500 text-white text-xl rounded-full px-2 py-2 mr-2 transition-colors duration-300 hover:bg-yellow-600">
-                    <BiEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(employee._id)}
-                    className="bg-red-500 text-white text-xl rounded-full px-2 py-2 transition-colors duration-300 hover:bg-red-600">
-                    <MdDeleteOutline />
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-2">Name</th>
+                <th className="border border-gray-300 px-4 py-2">Email</th>
+                <th className="border border-gray-300 px-4 py-2">Role</th>
+                <th className="border border-gray-300 px-4 py-2">Department</th>
+                <th className="border border-gray-300 px-4 py-2">
+                  Onboarding Status
+                </th>
+                <th className="border border-gray-300 px-4 py-2">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {employees.map((employee) => (
+                <tr
+                  key={employee._id}
+                  className="hover:bg-gray-100 transition-colors duration-200 text-center">
+                  <td className="border border-gray-300 px-4 py-2">
+                    {employee.name}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {employee.email}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 capitalize">
+                    {employee.role}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {employee.department}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <select
+                      name="status"
+                      value={employee.status}
+                      onChange={(e) =>
+                        updateStatusChange(
+                          employee._id,
+                          e.target.value,
+                          employee
+                        )
+                      }
+                      required
+                      className="border rounded px-2 py-1 focus:outline-none focus:ring focus:ring-blue-500 capitalize">
+                      <option value="" disabled>
+                        Status
+                      </option>
+                      {onboardingStatusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="border border-gray-200 px-4 py-2 text-center flex justify-center">
+                    <button
+                      onClick={() => handleEdit(employee)}
+                      className="bg-yellow-500 text-white text-xl rounded-full px-2 py-2 mr-2 transition-colors duration-300 hover:bg-yellow-600">
+                      <BiEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(employee._id)}
+                      className="bg-red-500 text-white text-xl rounded-full px-2 py-2 transition-colors duration-300 hover:bg-red-600">
+                      <MdDeleteOutline />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

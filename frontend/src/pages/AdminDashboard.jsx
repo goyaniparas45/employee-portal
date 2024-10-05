@@ -17,7 +17,10 @@ const AdminDashboard = ({ children }) => {
   const user = getUserData();
   const [permission, setPermission] = useState({});
   const [loading, setLoading] = useState(true);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
   useEffect(() => {
     init();
   }, []);
@@ -40,9 +43,11 @@ const AdminDashboard = ({ children }) => {
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
       <ToastContainer />
       <div className="flex h-screen overflow-hidden">
-        <Sidebar />
+        {/* <Sidebar /> */}
+        <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-          <Header />
+          {/* <Header /> */}
+          <Header toggleSidebar={toggleSidebar} />
           <div className="content flex-1 p-4 bg-gray-100">
             <Routes>
               <Route
@@ -51,8 +56,7 @@ const AdminDashboard = ({ children }) => {
                   <PermissionProtectedRoute
                     module="employee"
                     permissions={permission}
-                    permissionType="read"
-                  >
+                    permissionType="read">
                     <Employee />
                   </PermissionProtectedRoute>
                 }
@@ -64,8 +68,7 @@ const AdminDashboard = ({ children }) => {
                   <PermissionProtectedRoute
                     module="employee"
                     permissions={permission}
-                    permissionType="write"
-                  >
+                    permissionType="write">
                     <Task />
                   </PermissionProtectedRoute>
                 }
@@ -77,8 +80,7 @@ const AdminDashboard = ({ children }) => {
                   <PermissionProtectedRoute
                     module="dashboard"
                     permissions={permission}
-                    permissionType="read"
-                  >
+                    permissionType="read">
                     <ViewEmployee />
                   </PermissionProtectedRoute>
                 }
