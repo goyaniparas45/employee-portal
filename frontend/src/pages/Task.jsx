@@ -1,26 +1,25 @@
-import { MdDeleteOutline } from "react-icons/md";
-import { BiEdit } from "react-icons/bi";
 import { useEffect, useState } from "react";
-import {
-  showSuccessToast,
-  showErrorToast,
-  showWarningToast,
-} from "../utils/toastUtils";
+import { BiEdit } from "react-icons/bi";
+import { MdCheck, MdDeleteOutline } from "react-icons/md";
 import { ToastContainer } from "react-toastify";
-import { MdCheck } from "react-icons/md";
+import { getUserData } from "../services/authService";
+import { fetchEmployees } from "../services/employeeService";
 import {
   addTasks,
-  updateTasks,
-  fetchTasks,
   deleteTasks,
+  fetchTasks,
+  updateTasks,
 } from "../services/taskService";
-import { fetchEmployees } from "../services/employeeService";
-import { getUserData } from "../services/authService";
+import {
+  showErrorToast,
+  showSuccessToast,
+  showWarningToast,
+} from "../utils/toastUtils";
 
 const Task = () => {
   const user = getUserData();
 
-  const status = ["completed", "pending", "in-progress"];
+  const status = ["completed", "pending"];
   const [assignee, setAssignee] = useState([]);
   const [taskId, setTaskId] = useState("");
   const [loading, setLoading] = useState(false);
