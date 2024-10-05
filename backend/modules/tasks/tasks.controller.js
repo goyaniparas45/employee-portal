@@ -7,20 +7,22 @@ const getAllTasks = async (req, res) => {
     const logged_in_user = res.locals.user;
     const tasks =
       logged_in_user.role === ROLES.HR
-        ? await Task.find()
+        ? await Task.find({})
         : await Task.find({
             assignee: logged_in_user.user_id,
           });
+    const response = [];
+
     for (let i = 0; i < tasks.length; i++) {
       const task = tasks[i];
       const user = await UserModel.findById(task.created_by);
-      task.created_by = user;
+      response.push({ ...task._doc, created_by: user });
     }
 
     return res.status(200).json({
       status: "success",
       message: "",
-      data: tasks,
+      data: response,
     });
   } catch (error) {
     return res.status(500).json({
@@ -44,15 +46,14 @@ const getTask = async (req, res) => {
     }
 
     const assignee = await UserModel.findById(task.assignee);
-    task.assignee = assignee;
-
     const created_by = await UserModel.findById(task.created_by);
-    task.created_by = created_by;
+
+    const response = { ...task._doc, assignee, created_by };
 
     return res.status(200).json({
       status: "success",
       message: "",
-      data: task,
+      data: response,
     });
   } catch (error) {
     return res.status(500).json({

@@ -15,22 +15,23 @@ const getAllEmployees = async (req, res) => {
           )
         : await UserModel.find({}, { password: 0, __v: 0 });
 
+    const response = [];
+
     for (let i = 0; i < employees.length; i++) {
       const employee = employees[i];
       const user = await UserModel.findById(
         employee.created_by,
         "name email department"
       );
-      employee.created_by = user;
+      response.push({ ...employee._doc, created_by: user });
     }
 
     return res.status(200).json({
       status: "success",
       message: "",
-      data: employees,
+      data: response,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       status: "error",
       message: "An error occurred while fetching the employee",
@@ -52,12 +53,13 @@ const getEmployee = async (req, res) => {
       employee.created_by,
       "name email department"
     );
-    employee.created_by = user;
+
+    const response = { ...employee._doc, created_by: user };
 
     return res.status(200).json({
       status: "success",
       message: "",
-      data: employee,
+      data: response,
     });
   } catch (error) {
     return res.status(500).json({

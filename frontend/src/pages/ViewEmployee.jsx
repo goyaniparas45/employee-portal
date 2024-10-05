@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { fetchDashboardData } from "../services/dashboardService";
 import { fetchTasks, updateTasks } from "../services/taskService";
-import {
-  showErrorToast,
-  showSuccessToast,
-} from "../utils/toastUtils";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 
 const ViewEmployee = () => {
   const initialEmployees = [];
@@ -34,7 +31,7 @@ const ViewEmployee = () => {
 
   const updateStatusChange = async (taskId, status, task) => {
     try {
-     const response = await updateTasks(taskId, { ...task, status });
+      const response = await updateTasks(taskId, { ...task, status });
       showSuccessToast(response.message);
       init();
     } catch (error) {
@@ -72,13 +69,13 @@ const ViewEmployee = () => {
                 className="hover:bg-gray-100 transition-colors duration-200 text-center"
               >
                 <td className="border border-gray-300 px-4 py-2">
-                  {task.name}
+                  {task.name ? task.name : "--"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {task.description}
+                  {task.description ? task.description : "--"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {task.created_by?.name}
+                  {task.created_by?.name ? task.created_by?.name : "--"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   <select
