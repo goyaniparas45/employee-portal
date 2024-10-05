@@ -1,21 +1,20 @@
-import { MdDeleteOutline } from "react-icons/md";
-import { BiEdit } from "react-icons/bi";
 import { useEffect, useState } from "react";
-import {
-  showSuccessToast,
-  showErrorToast,
-  showWarningToast,
-} from "../utils/toastUtils";
+import { BiEdit } from "react-icons/bi";
+import { MdCheck, MdDeleteOutline } from "react-icons/md";
 import { ToastContainer } from "react-toastify";
-import { MdCheck } from "react-icons/md";
+import { useConfirmAlert } from "react-use-confirm-alert";
 import {
   addEmployee,
-  updateEmployee,
-  fetchEmployees,
   deleteEmployee,
+  fetchEmployees,
   fetchRoles,
+  updateEmployee,
 } from "../services/employeeService";
-import { useConfirmAlert } from "react-use-confirm-alert";
+import {
+  showErrorToast,
+  showSuccessToast,
+  showWarningToast,
+} from "../utils/toastUtils";
 
 const Employee = () => {
   const confirm = useConfirmAlert();
@@ -33,7 +32,7 @@ const Employee = () => {
     role: "",
     department: "",
     password: "",
-    onboardingStatus: "",
+    onboardingStatus: "pending",
     login_method: "email",
   });
   const [userRole, setUserRole] = useState([]);
@@ -183,7 +182,7 @@ const Employee = () => {
       role: "",
       department: "",
       password: "",
-      onboardingStatus: "",
+      onboardingStatus: "pending",
       login_method: "email",
     });
     setEmpId(null);
