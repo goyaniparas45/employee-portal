@@ -10,6 +10,7 @@ import Login from "./components/Login";
 import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
 import ForgotPassword from "./components/ForgotPassword";
+import ProtectedRoute from "./components/ProtectedRoute";
 import ResetPassword from "./components/ResetPassword";
 import VerifyCode from "./components/Verify";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -56,7 +57,18 @@ const AuthRoutes = () => {
     "/verify-code",
     "/forgot-password",
     "/reset-password",
+    "/unauthorized",
   ];
+
+  if (location.pathname === "/unauthorized") {
+    return (
+      <Routes>
+        {/* Unauthorized route */}
+        <Route path="unauthorized" element={<Unauthorized />} />
+      </Routes>
+    );
+  }
+
   if (
     authRoutes.some((route) => location.pathname === route) ||
     (location.pathname === "/reset-password" && token)
@@ -77,12 +89,12 @@ const AuthRoutes = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/admin/*" element={<AdminDashboard />} />
-      {/* Unauthorized route */}
-      <Route path="/unauthorized" element={<Unauthorized />} />
-      <Route path="*" element={<Navigate to="/admin" />} />
-    </Routes>
+    <ProtectedRoute>
+      <Routes>
+        <Route path="/admin/*" element={<AdminDashboard />} />
+        <Route path="*" element={<Navigate to="/admin" />} />
+      </Routes>
+    </ProtectedRoute>
   );
 };
 

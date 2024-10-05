@@ -2,24 +2,13 @@ import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
 import { getToken } from "../services/authService";
 
-const ProtectedRoute = ({ children, module, permissions, permissionType }) => {
+const ProtectedRoute = ({ children }) => {
   const isAuthenticated = getToken();
-  return isAuthenticated ? (
-    permissions[module] && permissions[module][permissionType] ? (
-      children
-    ) : (
-      <Navigate to="/unauthorized" replace />
-    )
-  ) : (
-    <Navigate to="/login" />
-  );
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 ProtectedRoute.propTypes = {
-  children: PropTypes.node.isRequired,
-  module: PropTypes.string.isRequired,
-  permissions: PropTypes.object.isRequired,
-  permissionType: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired
 };
 
 export default ProtectedRoute;

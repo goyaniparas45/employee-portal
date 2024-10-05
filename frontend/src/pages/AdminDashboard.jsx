@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import ChangePassword from "../components/ChangePassword";
-import ProtectedRoute from "../components/ProtectedRoute";
+import PermissionProtectedRoute from "../components/PermissionProtectedRoute";
 import Employee from "../pages/Employee";
 import Header from "../pages/Header";
 import Sidebar from "../pages/Sidebar";
@@ -48,42 +48,44 @@ const AdminDashboard = ({ children }) => {
               <Route
                 path="employees"
                 element={
-                  <ProtectedRoute
+                  <PermissionProtectedRoute
                     module="employee"
                     permissions={permission}
                     permissionType="read"
                   >
                     <Employee />
-                  </ProtectedRoute>
+                  </PermissionProtectedRoute>
                 }
               />
 
               <Route
                 path="tasks"
                 element={
-                  <ProtectedRoute
+                  <PermissionProtectedRoute
                     module="employee"
                     permissions={permission}
                     permissionType="write"
                   >
                     <Task />
-                  </ProtectedRoute>
+                  </PermissionProtectedRoute>
                 }
               />
 
               <Route
                 path="dashboard"
                 element={
-                  <ProtectedRoute
+                  <PermissionProtectedRoute
                     module="dashboard"
                     permissions={permission}
                     permissionType="read"
                   >
                     <ViewEmployee />
-                  </ProtectedRoute>
+                  </PermissionProtectedRoute>
                 }
               />
               <Route path="change-password" element={<ChangePassword />} />
+
+          
 
               <Route
                 path="*"

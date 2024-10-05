@@ -23,7 +23,7 @@ const taskSchema = new mongoose.Schema(
       type: String,
       required: [true, "Assignee cannot be empty"],
     },
-    documents: [String],
+    file: [Object],
     created_by: String,
   },
   { timestamps: true }
