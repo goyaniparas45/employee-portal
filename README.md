@@ -64,3 +64,5 @@ Hr@12345
 mozzie@yopmail.com
 Mozzie@123
 ```
+
+_NOTE: This emails are temporary emails so when you login to the portal plese visit [Yopmail.com](https://yopmail.com/) and type-in the email you want to see the code for_
