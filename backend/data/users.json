@@ -1,0 +1,23 @@
+[
+    {
+      "username": "alice.johnson",
+      "password": "$2b$10$7QyFzZnlkHgUORq6EYfuGkI3FNquIHw1A0Rp8QyRAy3KOlPdb4K", 
+      "role": "Employee",
+      "2fa_enabled": false
+    },
+    {
+      "username": "bob.smith",
+      "password": "$2b$10$5Tl3eGk3Q9gHKZsUr3uOOSNs8n7ERqsyoY6f4Hg1KI9hfePI2fuq", 
+      "role": "HR Manager",
+      "2fa_enabled": true,
+      "2fa_method": "email"
+    },
+    {
+      "username": "clara.adams",
+      "password": "$2b$10$B6ZyFmh5E1j7P8QzyzQEeu2b7UHO.Ckx.sOICNkTpGQSYQbu5KbXa",
+      "role": "Employee",
+      "2fa_enabled": true,
+      "2fa_method": "sms"
+    }
+  ]
+  
