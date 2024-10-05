@@ -130,7 +130,6 @@ const login = async (req, res) => {
       message: "Verification code sent",
     });
   } catch (err) {
-    console.log(err)
     return res.status(500).json({
       status: "error",
       message: "An error occurred during login",
@@ -236,7 +235,7 @@ const resetPassword = async (req, res) => {
         .json({ message: "Invalid or expired reset token" });
     }
 
-    user.password = await hashPassword(req.body.password);
+    user.password = await hashPassword(newPassword);
 
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
@@ -247,21 +246,46 @@ const resetPassword = async (req, res) => {
       status: "success",
       message: "Password has been successfully reset",
     });
-  } catch (error) {}
-  const user = await UserModel.findOne({ email: req.body.email });
-
-  // user not found
-  if (!user) {
-    return res.status(401).json({
-      status: "error",
-      message: "Email not registered",
-    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating password", error: error.message });
   }
+};
 
-  return res.status(200).json({
-    status: "success",
-    message: "Password reset success",
-  });
+const changePassword = async (req, res) => {
+  const logged_in_user = res.locals.user;
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    // Finding the user by email
+    const user = await UserModel.findById(logged_in_user.user_id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    //  Verifying the current password
+    const isMatch = await comparePassword(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    // Hashing the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Updating the user's password and saving it
+    user.password = hashedPassword;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ status: "success", message: "Password updated successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating password", error: error.message });
+  }
 };
 
 module.exports = {
@@ -270,4 +294,5 @@ module.exports = {
   validateCode,
   forgotPassword,
   resetPassword,
+  changePassword,
 };
