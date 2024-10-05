@@ -1,16 +1,26 @@
-import { NavLink } from "react-router-dom";
-import { HiOutlineUsers, HiOutlineClipboardList } from "react-icons/hi";
+import { AiOutlineLogout } from "react-icons/ai";
+import { HiOutlineClipboardList, HiOutlineUsers } from "react-icons/hi";
+import { MdPassword } from "react-icons/md";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../components/AuthContext";
 import { getUserData } from "../services/authService";
+
 const Sidebar = () => {
   const data = getUserData();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <div className="w-64 h-screen bg-gray-800 text-white shadow-lg">
       <div className="py-6 pr-6 text-center  text-xl font-bold">
         Admin Panel
       </div>
-      <nav className="flex flex-col py-4 px-6">
-        <ul className="space-y-2">
+      <nav className=" py-4 px-6 h-[calc(100%-130px)]">
+        <ul className="flex flex-col gap-2 h-full">
           <h3 className="mb-4 ml-4 text-sm font-semibold text-gray-400">
             MENU
           </h3>
@@ -57,6 +67,31 @@ const Sidebar = () => {
               </NavLink>
             </li>
           )}
+          <hr />
+          <li>
+            <NavLink
+              to="/admin/change-password"
+              className={({ isActive }) =>
+                `flex items-center justify-start h-12 px-4 rounded hover:bg-gray-700 transition ${
+                  isActive ? "bg-gray-600 text-yellow-300" : "text-white"
+                }`
+              }>
+              <MdPassword className="mr-2" />
+              Change password
+            </NavLink>
+          </li>
+          <div className="mt-auto">
+            <hr />
+            <li className="mt-2">
+              <NavLink
+                onClick={handleLogout}
+                className="flex items-center justify-start h-12 px-4 rounded hover:bg-gray-700 transition">
+                <AiOutlineLogout className="mr-2" />
+                Logout
+              </NavLink>
+            </li>
+            <li className="text-center mt-5">v0.0.1</li>
+          </div>
         </ul>
       </nav>
     </div>

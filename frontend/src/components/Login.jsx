@@ -45,9 +45,7 @@ const Login = () => {
     const errors = {};
 
     if (!data.email.trim()) {
-      errors.email = "email is required";
-    } else if (data.email.length < 4) {
-      errors.email = "Name must be at least 4 characters long";
+      errors.email = "Email is required";
     }
 
     if (!data.password) {
@@ -75,12 +73,14 @@ const Login = () => {
             <div className="mx-auto max-w-xs flex flex-col gap-4">
               <div>
                 <input
-                  className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 lowercase text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                  type="text"
+                  className={`w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500  text-sm focus:outline-none focus:border-gray-400 focus:bg-white ${
+                    formData.email ? "lowercase" : ""
+                  }`}
+                  type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="Enter your name"
+                  placeholder="Enter your email"
                   required
                 />
                 {error.email && (

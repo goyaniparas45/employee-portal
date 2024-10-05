@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import PropTypes from "prop-types";
 import { getToken } from "./services/authService";
+import ResetPassword from "./components/ResetPassword";
 
 const AuthLayout = ({ children }) => {
   const isAuthenticated = getToken();
@@ -43,19 +44,31 @@ const AuthLayout = ({ children }) => {
 AuthLayout.propTypes = {
   children: PropTypes.node.isRequired,
 };
+const queryParams = new URLSearchParams(location.search);
+const token = queryParams.get("token");
 
 const AuthRoutes = () => {
   const location = useLocation();
-  // "/signup";
-  const authRoutes = ["/login", "/verify-code", "/forgot-password"];
-
-  if (authRoutes.includes(location.pathname)) {
+  const authRoutes = [
+    "/login",
+    "/verify-code",
+    "/forgot-password",
+    "/reset-password",
+  ];
+  if (
+    authRoutes.some((route) => location.pathname === route) ||
+    (location.pathname === "/reset-password" && token)
+  ) {
     return (
       <AuthLayout>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/verify-code" element={<VerifyCode />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/reset-password"
+            element={<ResetPassword token={token} />}
+          />
         </Routes>
       </AuthLayout>
     );

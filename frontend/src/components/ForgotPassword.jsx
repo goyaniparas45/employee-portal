@@ -2,36 +2,52 @@ import { useState } from "react";
 import { forgotPassword } from "../services/authService";
 import { MdLockReset } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
+import { ToastContainer } from "react-toastify";
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState({});
+  const [formData, setFormData] = useState({
+    email: "",
+  });
 
   const handleChange = (e) => {
-    setEmail(e.target.value);
-    setError(""); // Reset error message
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccess("");
-    setError("");
-
-    if (!email) {
-      setError("Email is required.");
-      return;
-    }
+    const newErrors = validateForm(formData);
+    setError(newErrors);
 
     try {
-      await forgotPassword(email);
-      setSuccess("A reset link has been sent to your email.");
+      const resposne = await forgotPassword(formData.email);
+      resetForm();
+      showSuccessToast(resposne.message);
     } catch (err) {
-      console.error(err);
-      setError("Failed to send reset link, please try again.");
+      showErrorToast(err.message);
     }
   };
+
+  const validateForm = (data) => {
+    const errors = {};
+
+    if (!data.email) {
+      errors.code = "Email is required";
+    }
+
+    return errors;
+  };
+
+  const resetForm = () => {
+    setFormData({
+      email: "",
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit}>
+      <ToastContainer />
       <div className="p-6 sm:p-12">
         <div className=" flex flex-col items-center">
           <MdLockReset size={80} className="text-blue-900" />
@@ -50,15 +66,15 @@ const ForgotPassword = () => {
                   className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                   type="text"
                   name="email"
-                  value={email}
+                  value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
                   required
                 />
-
-                {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-                {success && (
-                  <p className="text-green-600 text-sm mb-4">{success}</p>
+                {error.email && (
+                  <span className="text-red-600 text-xs ml-3 mt-1">
+                    {error.email}
+                  </span>
                 )}
               </div>
 

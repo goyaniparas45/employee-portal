@@ -7,6 +7,7 @@ import Task from "../pages/Task";
 import ViewEmployee from "../pages/ViewEmployee";
 import PropTypes from "prop-types";
 import { getUserData } from "../services/authService";
+import ChangePassword from "../components/ChangePassword";
 
 const AdminDashboard = ({ children }) => {
   const user = getUserData();
@@ -29,6 +30,7 @@ const AdminDashboard = ({ children }) => {
                   />
                 }
               />
+              <Route path="change-password" element={<ChangePassword />} />
             </Routes>
             <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
               {children}

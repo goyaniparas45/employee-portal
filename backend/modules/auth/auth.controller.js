@@ -4,6 +4,7 @@ const { hashPassword, comparePassword } = require("../../helpers/bcrypt");
 const verifyCode = require("./../../helpers/verifyCode");
 const generateOTP = require("./../../helpers/generateOTP");
 const EmailConfig = require("./../../helpers/email");
+const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   const userModel = new UserModel(req.body);
@@ -183,8 +184,6 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    // send verification code
-
     // Generate a reset token (JWT or crypto)
     const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
@@ -195,11 +194,11 @@ const forgotPassword = async (req, res) => {
     await user.save();
 
     // Sending email with reset link
-    const resetURL = `http://localhost:4100/reset-password/${resetToken}`;
+    const resetURL = `http://localhost:4100/reset-password?token=${resetToken}`;
     const mail = {
       to: user.email,
       subject: "Password Reset",
-      html: `You requested a password reset. Please click this link to reset your password: ${resetURL}`,
+      html: `<p>You requested a password reset. Please click this link to reset your password: </p> <a href="${resetURL}" target="_blank"> CLICK HERE</a>`,
     };
 
     const sendEmail = await EmailConfig.sendEmail(mail);
@@ -212,6 +211,7 @@ const forgotPassword = async (req, res) => {
           message: "Reset link sent to your email",
         });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ status: "error", message: "Error processing request" });
@@ -260,6 +260,7 @@ const changePassword = async (req, res) => {
   try {
     // Finding the user by email
     const user = await UserModel.findById(logged_in_user.user_id);
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -270,12 +271,8 @@ const changePassword = async (req, res) => {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    // Hashing the new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    // Updating the user's password and saving it
-    user.password = hashedPassword;
+    // Hashing and Updating the user's password and saving it
+    user.password = await hashPassword(newPassword);
     await user.save();
 
     res

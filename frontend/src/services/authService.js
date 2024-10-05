@@ -5,6 +5,7 @@ import API_URL from "../config/config";
 export const signup = async (userData) =>
   await authClient.post(`${API_URL}/auth/register`, userData);
 
+// Verify API
 export const verifyCode = async (userData) =>
   await authClient.post(`${API_URL}/auth/verify-code`, userData);
 
@@ -14,11 +15,18 @@ export const login = async (credentials) =>
 
 // Forgot Password API
 export const forgotPassword = async (email) =>
-  await authClient.post(`${API_URL}/auth/verify-code`, {
+  await authClient.post(`${API_URL}/auth/forgot-password`, {
     email,
   });
 
-// Store token in local storage
+// Change Password API
+export const changePassword = async (request) =>
+  await authClient.post(`${API_URL}/auth/change-password`, request);
+
+// reset API
+export const resetPassword = async (userData) =>
+  await authClient.post(`${API_URL}/auth/reset-password`, userData);
+
 // Store user data in local storage
 export const setUserData = (data) => {
   localStorage.setItem("user", JSON.stringify(data));
