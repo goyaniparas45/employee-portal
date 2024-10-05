@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { login } from "../services/authService";
-import { Link } from "react-router-dom";
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
-import { ToastContainer } from "react-toastify";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { PiSignIn } from "react-icons/pi";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { login } from "../services/authService";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -12,6 +12,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const [error, setError] = useState({});
 
@@ -89,16 +90,22 @@ const Login = () => {
                   </span>
                 )}
               </div>
-              <div>
+              <div className="relative">
                 <input
                   className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                  type="password"
+                  type={isPasswordVisible ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Password"
                   required
                 />
+                <div
+                  className="grid place-content-center absolute z-30 right-4 top-0 bottom-0 cursor-pointer"
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                >
+                  {!isPasswordVisible ? <AiFillEyeInvisible /> : <AiFillEye />}
+                </div>
                 {error.password && (
                   <span className="text-red-600 text-xs mt-4  ml-3">
                     {error.password}
@@ -117,12 +124,14 @@ const Login = () => {
                 disabled={loading} // Disable button when loading
                 className={`tracking-wide font-semibold bg-blue-900 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}>
+                }`}
+              >
                 {loading ? ( // Show loader or text
                   <div className="flex items-center">
                     <svg
                       className="animate-spin h-5 w-5 mr-3 text-gray-100"
-                      viewBox="0 0 24 24">
+                      viewBox="0 0 24 24"
+                    >
                       <circle
                         className="opacity-25"
                         cx="12"

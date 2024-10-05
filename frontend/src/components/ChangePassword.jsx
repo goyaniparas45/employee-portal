@@ -1,10 +1,16 @@
 import { useState } from "react";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { MdPassword } from "react-icons/md";
 import { ToastContainer } from "react-toastify";
 import { changePassword } from "../services/authService";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 
 const ChangePassword = () => {
+  const [isCurrentPasswordVisible, setIsCurrentPasswordVisible] =
+    useState(false);
+  const [isConfirmNewPasswordVisible, setIsConfirmNewPasswordVisible] =
+    useState(false);
+
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -74,22 +80,35 @@ const ChangePassword = () => {
           <MdPassword size={50} className="text-blue-900" />
           <div className="text-center">
             <h1 className="text-2xl xl:text-4xl font-extrabold text-blue-900 py-1">
-              Reset Password
+              Change Password
             </h1>
-            <p className="text-[12px] text-gray-500">Enter the new password</p>
           </div>
           <div className="w-full flex-1 mt-8">
             <div className="mx-auto max-w-xs flex flex-col gap-4">
               <div>
-                <input
-                  className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white "
-                  type="password"
-                  name="currentPassword"
-                  value={formData.currentPassword}
-                  onChange={handleChange}
-                  placeholder="Current Password"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white "
+                    type={isCurrentPasswordVisible ? "text" : "password"}
+                    name="currentPassword"
+                    value={formData.currentPassword}
+                    onChange={handleChange}
+                    placeholder="Current Password"
+                    required
+                  />
+                  <div
+                    className="grid place-content-center absolute z-30 right-4 top-0 bottom-0 cursor-pointer"
+                    onClick={() =>
+                      setIsCurrentPasswordVisible(!isCurrentPasswordVisible)
+                    }
+                  >
+                    {!isCurrentPasswordVisible ? (
+                      <AiFillEyeInvisible />
+                    ) : (
+                      <AiFillEye />
+                    )}
+                  </div>
+                </div>
                 <input
                   className="mt-4 w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white "
                   type="text"
@@ -104,20 +123,36 @@ const ChangePassword = () => {
                     {error.newPassword}
                   </span>
                 )}
-                <input
-                  className="mt-4 w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                  type="password"
-                  name="confirmNewPassword"
-                  value={formData.confirmNewPassword}
-                  onChange={handleChange}
-                  placeholder="Confirm password"
-                  required
-                />
-                {error.confirmNewPassword && (
-                  <span className="text-red-600 text-xs  mt-1">
-                    {error.confirmNewPassword}
-                  </span>
-                )}
+                <div className="relative mt-4 ">
+                  <input
+                    className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                    type={isConfirmNewPasswordVisible ? "text" : "password"}
+                    name="confirmNewPassword"
+                    value={formData.confirmNewPassword}
+                    onChange={handleChange}
+                    placeholder="Confirm password"
+                    required
+                  />
+                  {error.confirmNewPassword && (
+                    <span className="text-red-600 text-xs  mt-1">
+                      {error.confirmNewPassword}
+                    </span>
+                  )}
+                  <div
+                    className="grid place-content-center absolute z-30 right-4 top-0 bottom-0 cursor-pointer"
+                    onClick={() =>
+                      setIsConfirmNewPasswordVisible(
+                        !isConfirmNewPasswordVisible
+                      )
+                    }
+                  >
+                    {!isConfirmNewPasswordVisible ? (
+                      <AiFillEyeInvisible />
+                    ) : (
+                      <AiFillEye />
+                    )}
+                  </div>
+                </div>
               </div>
 
               <button
@@ -125,12 +160,14 @@ const ChangePassword = () => {
                 disabled={loading}
                 className={`tracking-wide font-semibold bg-blue-900 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
-                }`}>
+                }`}
+              >
                 {loading ? (
                   <div className="flex items-center">
                     <svg
                       className="animate-spin h-5 w-5 mr-3 text-gray-100"
-                      viewBox="0 0 24 24">
+                      viewBox="0 0 24 24"
+                    >
                       <circle
                         className="opacity-25"
                         cx="12"

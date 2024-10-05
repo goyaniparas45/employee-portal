@@ -1,10 +1,11 @@
-import { MdPassword } from "react-icons/md";
 import { useState } from "react";
-import { useAuth } from "./AuthContext";
-import { verifyCode } from "../services/authService";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { MdPassword } from "react-icons/md";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 import { ToastContainer } from "react-toastify";
+import { verifyCode } from "../services/authService";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
+import { useAuth } from "./AuthContext";
 const VerifyCode = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -16,7 +17,8 @@ const VerifyCode = () => {
     email,
     code: "",
   });
-
+ const [isPasswordVisible, setIsPasswordVisible] =
+   useState(false);
   const [error, setError] = useState({});
 
   const handleChange = (e) => {
@@ -73,10 +75,10 @@ const VerifyCode = () => {
           </div>
           <div className="w-full flex-1 mt-8">
             <div className="mx-auto max-w-xs flex flex-col gap-4">
-              <div>
+              <div className="relative"> 
                 <input
                   className="w-full px-5 py-3 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                  type="password"
+                    type={isPasswordVisible ? "text" : "password"}
                   name="code"
                   maxLength={6}
                   value={formData.code}
@@ -84,6 +86,20 @@ const VerifyCode = () => {
                   placeholder="Code"
                   required
                 />
+                <div
+                    className="grid place-content-center absolute z-30 right-4 top-0 bottom-0 cursor-pointer"
+                    onClick={() =>
+                      setIsPasswordVisible(
+                        !isPasswordVisible
+                      )
+                    }
+                  >
+                    {!isPasswordVisible ? (
+                      <AiFillEyeInvisible />
+                    ) : (
+                      <AiFillEye />
+                    )}
+                  </div>
                 {error.code && (
                   <span className="text-red-600 text-xs ml-3 mt-1">
                     {error.code}
