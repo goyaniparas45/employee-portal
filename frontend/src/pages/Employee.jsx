@@ -187,8 +187,8 @@ const Employee = () => {
     setEmpId(null);
   };
 
-  const updateStatusChange = async (id, status, employee) => {
-    await updateEmployeeData(id, { ...employee, status });
+  const updateStatusChange = async (id, onboardingStatus, employee) => {
+    await updateEmployeeData(id, { ...employee, onboardingStatus });
     getEmployees();
     resetForm();
   };
