@@ -39,12 +39,21 @@ const ChangePassword = () => {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });
+      resetFormData();
       showSuccessToast(response.message);
     } catch (err) {
       showErrorToast(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetFormData = () => {
+    setFormData({
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    });
   };
 
   const validateForm = (data) => {

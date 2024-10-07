@@ -12,8 +12,7 @@ import {
 } from "../services/employeeService";
 import {
   showErrorToast,
-  showSuccessToast,
-  showWarningToast,
+  showSuccessToast
 } from "../utils/toastUtils";
 
 const Employee = () => {
@@ -21,7 +20,7 @@ const Employee = () => {
   const initialEmployees = [];
   const [loading, setLoading] = useState(false);
   const departmentOptions = ["IT", "Marketing", "Dispatch"];
-  const onboardingStatusOptions = ["Completed", "Pending"];
+  const onboardingStatusOptions = ["completed", "pending"];
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [employees, setEmployees] = useState(initialEmployees);
@@ -202,7 +201,7 @@ const Employee = () => {
         try {
           const response = await deleteEmployee(id);
           getEmployees();
-          showWarningToast(response.message);
+          showSuccessToast(response.message);
         } catch (error) {
           showErrorToast(error.message);
         }
@@ -269,7 +268,8 @@ const Employee = () => {
                 value={formData.role}
                 onChange={handleChange}
                 required
-                className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full">
+                className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
+              >
                 <option value="" disabled>
                   Select Role
                 </option>
@@ -295,7 +295,8 @@ const Employee = () => {
                 value={formData.department}
                 onChange={handleChange}
                 required
-                className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full">
+                className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
+              >
                 <option value="" disabled>
                   Select Department
                 </option>
@@ -322,7 +323,8 @@ const Employee = () => {
                   value={formData.onboardingStatus}
                   onChange={handleChange}
                   required
-                  className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full">
+                  className="border rounded px-4 py-2 focus:outline-none focus:ring focus:ring-blue-500 w-full"
+                >
                   <option value="" disabled>
                     Onboarding Status
                   </option>
@@ -344,7 +346,8 @@ const Employee = () => {
             <button
               onClick={resetForm}
               type="button"
-              className=" text-blue-700 rounded px-4 py-2 transition-colors duration-300 hover:bg-gray-400 mr-4 hover:text-white flex items-center">
+              className=" text-blue-700 rounded px-4 py-2 transition-colors duration-300 hover:bg-gray-400 mr-4 hover:text-white flex items-center"
+            >
               Cancel
             </button>
 
@@ -353,12 +356,14 @@ const Employee = () => {
               disabled={loading}
               className={`tracking-wide font-semibold bg-blue-900 text-gray-100 px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}>
+              }`}
+            >
               {loading ? ( // Show loader when loading is true
                 <div className="flex items-center">
                   <svg
                     className="animate-spin h-5 w-5 mr-3 text-gray-100"
-                    viewBox="0 0 24 24">
+                    viewBox="0 0 24 24"
+                  >
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -407,7 +412,8 @@ const Employee = () => {
               {employees.map((employee) => (
                 <tr
                   key={employee._id}
-                  className="hover:bg-gray-100 transition-colors duration-200 text-center">
+                  className="hover:bg-gray-100 transition-colors duration-200 text-center"
+                >
                   <td className="border border-gray-300 px-4 py-2">
                     {employee.name}
                   </td>
@@ -422,8 +428,8 @@ const Employee = () => {
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     <select
-                      name="status"
-                      value={employee.status}
+                      name="onboardingStatus"
+                      value={employee.onboardingStatus}
                       onChange={(e) =>
                         updateStatusChange(
                           employee._id,
@@ -432,7 +438,8 @@ const Employee = () => {
                         )
                       }
                       required
-                      className="border rounded px-2 py-1 focus:outline-none focus:ring focus:ring-blue-500 capitalize">
+                      className="border rounded px-2 py-1 focus:outline-none focus:ring focus:ring-blue-500 capitalize"
+                    >
                       <option value="" disabled>
                         Status
                       </option>
@@ -446,12 +453,14 @@ const Employee = () => {
                   <td className="border border-gray-200 px-4 py-2 text-center flex justify-center">
                     <button
                       onClick={() => handleEdit(employee)}
-                      className="bg-yellow-500 text-white text-xl rounded-full px-2 py-2 mr-2 transition-colors duration-300 hover:bg-yellow-600">
+                      className="bg-yellow-500 text-white text-xl rounded-full px-2 py-2 mr-2 transition-colors duration-300 hover:bg-yellow-600"
+                    >
                       <BiEdit />
                     </button>
                     <button
                       onClick={() => handleDelete(employee._id)}
-                      className="bg-red-500 text-white text-xl rounded-full px-2 py-2 transition-colors duration-300 hover:bg-red-600">
+                      className="bg-red-500 text-white text-xl rounded-full px-2 py-2 transition-colors duration-300 hover:bg-red-600"
+                    >
                       <MdDeleteOutline />
                     </button>
                   </td>

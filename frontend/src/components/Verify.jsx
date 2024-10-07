@@ -40,7 +40,7 @@ const VerifyCode = () => {
       const data = response.data;
       showSuccessToast(response.message);
       login(data.token, data.user);
-      navigate("/admin/employees");
+      navigate("/admin");
     } catch (err) {
       console.log(err);
       showErrorToast(err.message);

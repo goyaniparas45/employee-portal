@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import API_URL from "../config/config";
-import { AiOutlineClose } from "react-icons/ai";
 import { useEffect, useState } from "react";
+import { AiOutlineClose } from "react-icons/ai";
+import API_URL from "../config/config";
 import { updateTasks } from "../services/taskService";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 
@@ -83,7 +83,7 @@ TaskModal.propTypes = {
     name: PropTypes.string.isRequired,
     file: PropTypes.arrayOf(
       PropTypes.shape({
-        name: PropTypes.string.isRequired,
+        filename: PropTypes.string.isRequired,
         url: PropTypes.string.isRequired,
       })
     ).isRequired,
